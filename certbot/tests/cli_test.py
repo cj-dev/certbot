@@ -68,7 +68,8 @@ class ParseTest(unittest.TestCase):  # pylint: disable=too-many-public-methods
         tmp_config = tempfile.NamedTemporaryFile()
         # use a shim to get ConfigArgParse to pick up tmp_config
         shim = (
-                lambda v: copy.deepcopy(constants.CLI_DEFAULTS[v])
+                # lambda v: copy.deepcopy(constants.CLI_DEFAULTS[v])
+                lambda v: constants.CLI_DEFAULTS[v]
                 if v != "config_files"
                 else [tmp_config.name]
                 )
@@ -76,12 +77,15 @@ class ParseTest(unittest.TestCase):  # pylint: disable=too-many-public-methods
 
         namespace = self.parse(["certonly"])
         self.assertEqual(namespace.domains, [])
+        self.assertEqual(constants.CLI_DEFAULTS['domains'], [])
         tmp_config.write(b"domains = example.com")
         tmp_config.flush()
         namespace = self.parse(["certonly"])
         self.assertEqual(namespace.domains, ["example.com"])
+        self.assertEqual(constants.CLI_DEFAULTS['domains'], [])
         namespace = self.parse(["renew"])
         self.assertEqual(namespace.domains, [])
+        self.assertEqual(constants.CLI_DEFAULTS['domains'], [])
 
     def test_no_args(self):
         namespace = self.parse([])
